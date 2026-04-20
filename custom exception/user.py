@@ -1,0 +1,2 @@
+def UserNotFound(Exception):
+    pass
