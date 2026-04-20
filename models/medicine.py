@@ -34,5 +34,5 @@ class CatogoryDB(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     catogory = Column(String, nullable=False)
-    medicine_id = Column(Integer, ForeignKey("meddicines.id", ondelete="CASCADE"))
+    medicine_id = Column(Integer, ForeignKey("medicines.id", ondelete="CASCADE"))
     medicine = relationship("medicines", back_populates="cg")
