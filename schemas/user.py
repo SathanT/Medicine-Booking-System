@@ -1,17 +1,17 @@
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel, ConfigDict
 from typing import Optional
 
 from enums.roles import Role
 
 class UserBase(BaseModel):
     name: str
-    email: EmailStr
+    email: str
     age: int
     role : Role
 
 
 class UserCreate(UserBase):
-    password: int
+    password: str
 
 
 class UserUpdate(BaseModel):
@@ -22,6 +22,4 @@ class UserUpdate(BaseModel):
 
 class UserResponse(UserBase):
     id: int
-
-    class Config:
-        orm_mode = True
+    model_config = ConfigDict(from_attributes=True)

@@ -4,6 +4,7 @@ from models.medicine import MedicineDB, ManufacturerDB, CatogoryDB
 from schemas.medicine import MedicineCreate, MedicineUpdate
 from schemas.manufacturer import ManufacturerCreate, ManufacturerUpdate
 from schemas.catogory import CatogoryCreate, CatogoryUpdate
+from custom_exception.dbexception import DatabaseException
 
 
 # ------------------ CREATE ------------------
@@ -22,8 +23,8 @@ def create_medicine(db: Session, medicine: MedicineCreate):
         return new_medicine
 
     except Exception as e:
-        print(str(e))
         db.rollback()
+        raise DatabaseException()
 
 
 def create_manufacturer(db: Session, medicine_id: int, data: ManufacturerCreate):
@@ -40,24 +41,24 @@ def create_manufacturer(db: Session, medicine_id: int, data: ManufacturerCreate)
         return manufacturer
 
     except Exception as e:
-        print(str(e))
         db.rollback()
+        raise DatabaseException()
 
 
 def create_category(db: Session, medicine_id: int, data: CatogoryCreate):
     try:
-        category = CatogoryDB(
-            category=data.category,
+        catogory = CatogoryDB(
+            catogory=data.catogory,
             medicine_id=medicine_id,
         )
-        db.add(category)
+        db.add(catogory)
         db.commit()
-        db.refresh(category)
-        return category
+        db.refresh(catogory)
+        return catogory
 
     except Exception as e:
-        print(str(e))
         db.rollback()
+        raise DatabaseException()
 
 
 # ------------------ READ ------------------
@@ -109,8 +110,8 @@ def update_medicine(db: Session, medicine_id: int, data: MedicineUpdate):
         return medicine
 
     except Exception as e:
-        print(str(e))
         db.rollback()
+        raise DatabaseException()
 
 
 def update_manufacturer(db: Session, manufacturer_id: int, data: ManufacturerUpdate):
@@ -120,7 +121,7 @@ def update_manufacturer(db: Session, manufacturer_id: int, data: ManufacturerUpd
         if not manufacturer:
             return None
 
-        update_data = data.model_dump(exclude_unset=True)
+        update_data = data.model_dump(exclude_unset=True,exclude_none=True)
 
         for key, value in update_data.items():
             setattr(manufacturer, key, value)
@@ -130,8 +131,8 @@ def update_manufacturer(db: Session, manufacturer_id: int, data: ManufacturerUpd
         return manufacturer
 
     except Exception as e:
-        print(str(e))
         db.rollback()
+        raise DatabaseException()
 
 
 def update_category(db: Session, category_id: int, data: CatogoryUpdate):
@@ -151,8 +152,8 @@ def update_category(db: Session, category_id: int, data: CatogoryUpdate):
         return category
 
     except Exception as e:
-        print(str(e))
         db.rollback()
+        raise DatabaseException()
 
 
 # ------------------ DELETE ------------------
@@ -170,8 +171,8 @@ def delete_medicine(db: Session, medicine_id: int):
         return {"message": "Medicine deleted successfully"}
 
     except Exception as e:
-        print(str(e))
         db.rollback()
+        raise DatabaseException()
 
 
 def delete_manufacturer(db: Session, manufacturer_id: int):
@@ -187,8 +188,8 @@ def delete_manufacturer(db: Session, manufacturer_id: int):
         return {"message": "Manufacturer deleted successfully"}
 
     except Exception as e:
-        print(str(e))
         db.rollback()
+        raise DatabaseException()
 
 
 def delete_category(db: Session, category_id: int):
@@ -204,5 +205,5 @@ def delete_category(db: Session, category_id: int):
         return {"message": "Category deleted successfully"}
 
     except Exception as e:
-        print(str(e))
         db.rollback()
+        raise DatabaseException()

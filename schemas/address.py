@@ -1,7 +1,7 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 from typing import List, Optional
 
-from user import UserResponse
+from schemas.user import UserResponse
 
 
 class AddressBase(BaseModel):
@@ -17,18 +17,16 @@ class AddressCreate(AddressBase):
 
 
 class AddressUpdate(BaseModel):
-    door_no: Optional[int]
-    street: Optional[str]
-    city: Optional[str]
-    district: Optional[str]
-    state: Optional[str]
+    door_no: Optional[int] = None
+    street: Optional[str] = None
+    city: Optional[str] = None
+    district: Optional[str] = None
+    state: Optional[str] = None
 
 
 class AddressResponse(AddressBase):
     id: int
-
-    class Config:
-        orm_mode = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class UserWithAddress(UserResponse):

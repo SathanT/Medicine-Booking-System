@@ -1,8 +1,9 @@
-from sqlalchemy import Session
+from sqlalchemy.orm import Session
 
 from models.users import UserDB, AddressDB
 from schemas.user import UserCreate, UserUpdate
 from schemas.address import AddressCreate, AddressUpdate
+from custom_exception.dbexception import DatabaseException
 
 
 def create_user(db: Session, user: UserCreate):
@@ -20,12 +21,13 @@ def create_user(db: Session, user: UserCreate):
 
         return new_user
     except Exception as e:
-        print(str(e))
+        db.rollback()
+        raise DatabaseException()
 
 
 def create_address(db: Session, userId: int, address: AddressCreate):
     try:
-        address = AddressDB(
+        new_address = AddressDB(
             door_no=address.door_no,
             street=address.street,
             city=address.city,
@@ -33,16 +35,18 @@ def create_address(db: Session, userId: int, address: AddressCreate):
             state=address.state,
             user_id=userId,
         )
-        db.add(address)
+        db.add(new_address)
         db.commit()
-        db.refresh(address)
+        db.refresh(new_address)
+        return new_address
     except Exception as e:
-        print(str(e))
+        db.rollback()
+        raise DatabaseException()
 
 
 def get_user_by_id(db: Session, user_id: int):
     try:
-        user = db.query(UserDB).filter(UserDB.id == user_id).all()
+        user = db.query(UserDB).filter(UserDB.id == user_id).first()
         return user
     except Exception as e:
         print(str(e))
@@ -50,7 +54,7 @@ def get_user_by_id(db: Session, user_id: int):
 
 def get_user_by_email(db: Session, user_email: str):
     try:
-        user = db.query(UserDB).filter(UserDB.emai == user_email).all()
+        user = db.query(UserDB).filter(UserDB.email == user_email).first()
         return user
     except Exception as e:
         print(str(e))
@@ -58,7 +62,7 @@ def get_user_by_email(db: Session, user_email: str):
 
 def get_address_by_id(db: Session, add_id: int):
     try:
-        address = db.query(AddressDB).filter(AddressDB.id == add_id).all()
+        address = db.query(AddressDB).filter(AddressDB.id == add_id).first()
         return address
     except Exception as e:
         print(str(e))
@@ -76,26 +80,28 @@ def update_user(db: Session, user_id: int, data: UserUpdate):
     try:
         user = db.query(UserDB).filter(UserDB.id == user_id).first()
         update_data = data.model_dump(exclude_unset=True)
-        for key, value in update_data:
+        for key, value in update_data.items():
             setattr(user, key, value)
         db.commit()
         db.refresh(user)
         return user
     except Exception as e:
-        print(str(e))
+        db.rollback()
+        raise DatabaseException()
 
 
 def update_address(db: Session, address_id: int, data: AddressUpdate):
     try:
         address = db.query(AddressDB).filter(AddressDB.id == address_id).first()
-        update_data = data.model_dump(exclude_unset=True)
-        for key, value in update_data:
+        update_data = data.model_dump(exclude_unset=True,exclude_none=True)
+        for key, value in update_data.items():
             setattr(address, key, value)
         db.commit()
         db.refresh(address)
         return address
     except Exception as e:
-        print(str(e))
+        db.rollback()
+        raise DatabaseException()
 
 
 def delete_user(db: Session, user_id: int):
@@ -104,7 +110,8 @@ def delete_user(db: Session, user_id: int):
         db.delete(user)
         db.commit()
     except Exception as e:
-        print(str(e))
+        db.rollback()
+        raise DatabaseException()
 
 
 def delete_address(db: Session, address_id: int):
@@ -113,4 +120,5 @@ def delete_address(db: Session, address_id: int):
         db.delete(address)
         db.commit()
     except Exception as e:
-        print(str(e))
+        db.rollback()
+        raise DatabaseException()

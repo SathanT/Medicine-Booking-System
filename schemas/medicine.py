@@ -1,8 +1,8 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 from typing import Optional,List
 
-from manufacturer import ManufacturerResponse
-from catogory import CatogoryResponse
+from schemas.manufacturer import ManufacturerResponse
+from schemas.catogory import CatogoryResponse
 
 class MedicineBase(BaseModel):
     name: str
@@ -24,10 +24,8 @@ class MedicineUpdate(BaseModel):
 
 class MedicineResponse(MedicineBase):
     id: int
-
-    class Config:
-        orm_mode = True
+    model_config = ConfigDict(from_attributes=True)
 
 class MedicineFullResponse(MedicineResponse):
-    man=List[ManufacturerResponse]
-    cg=List[CatogoryResponse]
+    man: List[ManufacturerResponse]
+    cg: List[CatogoryResponse]

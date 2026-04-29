@@ -1,16 +1,19 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
+from typing import Optional
 
 
 class CatogoryBase(BaseModel):
-    name: str
+    catogory: str
 
 
 class CatogoryCreate(CatogoryBase):
     pass
 
 
+class CatogoryUpdate(BaseModel):
+    catogory: Optional[str] = None
+
+
 class CatogoryResponse(CatogoryBase):
     id: int
-
-    class Config:
-        orm_mode = True
+    model_config = ConfigDict(from_attributes=True)

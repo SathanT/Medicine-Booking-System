@@ -4,6 +4,7 @@ from datetime import datetime
 from models.orders import OrderDB, OrderItemDB
 from schemas.orders import OrderCreate, OrderUpdate
 from schemas.order_item import OrderItemCreate, OrderItemUpdate
+from custom_exception.dbexception import DatabaseException
 
 
 # ------------------ CREATE ------------------
@@ -23,8 +24,8 @@ def create_order(db: Session, user_id: int, data: OrderCreate):
         return order
 
     except Exception as e:
-        print(str(e))
         db.rollback()
+        raise DatabaseException()
 
 
 def create_order_item(db: Session, order_id: int, data: OrderItemCreate):
@@ -43,8 +44,8 @@ def create_order_item(db: Session, order_id: int, data: OrderItemCreate):
         return item
 
     except Exception as e:
-        print(str(e))
         db.rollback()
+        raise DatabaseException()
 
 
 # ------------------ READ ------------------
@@ -90,8 +91,8 @@ def update_order(db: Session, order_id: int, data: OrderUpdate):
         return order
 
     except Exception as e:
-        print(str(e))
         db.rollback()
+        raise DatabaseException()
 
 
 def update_order_item(db: Session, item_id: int, data: OrderItemUpdate):
@@ -112,8 +113,8 @@ def update_order_item(db: Session, item_id: int, data: OrderItemUpdate):
         return item
 
     except Exception as e:
-        print(str(e))
         db.rollback()
+        raise DatabaseException()
 
 
 # ------------------ DELETE ------------------
@@ -131,8 +132,8 @@ def delete_order(db: Session, order_id: int):
         return {"message": "Order deleted successfully"}
 
     except Exception as e:
-        print(str(e))
         db.rollback()
+        raise DatabaseException()
 
 
 def delete_order_item(db: Session, item_id: int):
@@ -148,5 +149,5 @@ def delete_order_item(db: Session, item_id: int):
         return {"message": "Order item deleted successfully"}
 
     except Exception as e:
-        print(str(e))
         db.rollback()
+        raise DatabaseException()
